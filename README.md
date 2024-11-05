@@ -1,6 +1,6 @@
 # **Turkey City Guessing Game**
 
-## Game Overview
+## Game Over
 
 The Turkey City Guessing Game is designed to help players identify Turkey’s 81 cities using a series of four clues for each city. Based on the clues provided, the player must guess the correct city and select it on a map of Turkey. Each city is asked only once, and the game continues until all cities are correctly identified.
 
