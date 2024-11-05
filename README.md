@@ -1,4 +1,4 @@
-##Turkey City Guessing Game
+Turkey City Guessing Game
 
 Game Overview
 
