@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Turkey Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        #map {
+            height: 100vh;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        const map = L.map('map', {
+            doubleClickZoom: false // Çift tıklamayla yakınlaştırmayı engelle
+        }).setView([39.0, 35.0], 6);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+        }).addTo(map);
+
+        const provinces = [
+            { name: "Adana", coords: [36.98542, 35.32502] },
+            { name: "Adıyaman", coords: [37.76299, 38.277298] },
+            { name: "Afyonkarahisar", coords: [38.756217, 30.537846] },
+            { name: "Ağrı", coords: [39.718993, 43.047663] },
+            { name: "Amasya", coords: [40.656314, 35.837068] },
+            { name: "Ankara", coords: [39.942928, 32.860481] },
+            { name: "Antalya", coords: [36.896126, 30.713081] },
+            { name: "Artvin", coords: [41.18131, 41.820537] },
+            { name: "Aydın", coords: [37.838044, 27.845571] },
+            { name: "Balıkesir", coords: [39.644878, 27.885361] },
+            { name: "Bilecik", coords: [40.14296, 29.979159] },
+            { name: "Bingöl", coords: [38.88472, 40.496391] },
+            { name: "Bitlis", coords: [38.400664, 42.108971] },
+            { name: "Bolu", coords: [40.732006, 31.607052] },
+            { name: "Burdur", coords: [37.718293, 30.282248] },
+            { name: "Bursa", coords: [40.182816, 29.066148] },
+            { name: "Çanakkale", coords: [40.146777, 26.40822] },
+            { name: "Çankırı", coords: [40.60019, 33.616304] },
+            { name: "Çorum", coords: [40.549853, 34.953694] },
+            { name: "Denizli", coords: [37.783026, 29.096246] },
+            { name: "Diyarbakır", coords: [37.9137, 40.224899] },
+            { name: "Edirne", coords: [41.675907, 26.553608] },
+            { name: "Elazığ", coords: [38.6763, 39.221802] },
+            { name: "Erzincan", coords: [39.75, 39.5] },
+            { name: "Erzurum", coords: [39.905994, 41.273784] },
+            { name: "Eskişehir", coords: [39.766724, 30.525608] },
+            { name: "Gaziantep", coords: [37.062931, 37.378159] },
+            { name: "Giresun", coords: [40.917921, 38.389876] },
+            { name: "Gümüşhane", coords: [40.458673, 39.478961] },
+            { name: "Hakkari", coords: [37.57812, 43.733805] },
+            { name: "Hatay", coords: [36.202621, 36.160045] },
+            { name: "Isparta", coords: [37.762627, 30.553612] },
+            { name: "Mersin", coords: [36.810307, 34.620414] },
+            { name: "istanbul", coords: [41.046419, 29.033115] },
+            { name: "izmir", coords: [38.423652, 27.142797] },
+            { name: "Kars", coords: [40.601469, 43.097496] },
+            { name: "Kastamonu", coords: [41.378133, 33.776539] },
+            { name: "Kayseri", coords: [38.7221, 35.489122] },
+            { name: "Kırklareli", coords: [41.735547, 27.224502] },
+            { name: "Kırşehir", coords: [39.146209, 34.160577] },
+            { name: "Kocaeli", coords: [40.7656, 29.940659] },
+            { name: "Konya", coords: [37.872817, 32.491991] },
+            { name: "Kütahya", coords: [39.419993, 29.985721] },
+            { name: "Malatya", coords: [38.35539, 38.333476] },
+            { name: "Manisa", coords: [38.614027, 27.429533] },
+            { name: "Kahramanmaraş", coords: [37.582047, 36.926934] },
+            { name: "Mardin", coords: [37.313051, 40.732555] },
+            { name: "Muğla", coords: [37.215266, 28.363718] },
+            { name: "Muş", coords: [38.732415, 41.489878] },
+            { name: "Nevşehir", coords: [38.623861, 34.712756] },
+            { name: "Niğde", coords: [37.96911, 34.678619] },
+            { name: "Ordu", coords: [40.985592, 37.879123] },
+            { name: "Rize", coords: [41.025113, 40.516397] },
+            { name: "Sakarya", coords: [40.773626, 30.403235] },
+            { name: "Samsun", coords: [41.28157, 36.33812] },
+            { name: "Siirt", coords: [37.927462, 41.94227] },
+            { name: "Sinop", coords: [42.026596, 35.151245] },
+            { name: "Sivas", coords: [39.750528, 37.015028] },
+            { name: "Tekirdağ", coords: [40.978127, 27.511091] },
+            { name: "Tokat", coords: [40.323397, 36.552149] },
+            { name: "Trabzon", coords: [41.001289, 39.716549] },
+            { name: "Tunceli", coords: [39.108101, 39.548199] },
+            { name: "Şanlıurfa", coords: [37.1586, 38.797901] },
+            { name: "Uşak", coords: [38.678883, 29.404976] },
+            { name: "Van", coords: [38.501287, 43.372931] },
+            { name: "Yozgat", coords: [39.820954, 34.808617] },
+            { name: "Zonguldak", coords: [41.45265, 31.790032] },
+            { name: "Aksaray", coords: [38.370386, 34.026986] },
+            { name: "Bayburt", coords: [40.250858, 40.202831] },
+            { name: "Karaman", coords: [37.1812, 33.222315] },
+            { name: "Kırıkkale", coords: [39.849998, 33.5] },
+            { name: "Batman", coords: [37.882999, 41.130901] },
+            { name: "Şırnak", coords: [37.522781, 42.459438] },
+            { name: "Bartın", coords: [41.633178, 32.338396] },
+            { name: "Ardahan", coords: [41.112875, 42.702389] },
+            { name: "Iğdır", coords: [39.895802, 44.040821] },
+            { name: "Yalova", coords: [40.657659, 29.268905] },
+            { name: "Karabük", coords: [41.200069, 32.629601] },
+            { name: "Kilis", coords: [36.717999, 37.116901] },
+            { name: "Osmaniye", coords: [37.074695, 36.246347] },
+            { name: "Düzce", coords: [40.839377, 31.159454] }
+        ];
+
+
+
+        const markers = {};
+        const permanentGreenPins = new Set(); // Kalıcı yeşil pinler
+        const wrongPins = new Set(); // Yanlış cevaplar için set
+        let clicksDisabled = false; // Tıklama kontrolü
+
+        // Her il için bir daire oluştur ve tıklanabilir hale getir
+        provinces.forEach(province => {
+            const circle = L.circleMarker(province.coords, {
+                radius: 10,
+                color: 'black', // Çerçeve rengi
+                weight: 1,
+                fillColor: 'white', // Başlangıç iç rengi
+                fillOpacity: 0.5 // Şeffaflık
+            }).addTo(map).bindPopup(province.name);
+
+            markers[province.name] = circle;
+
+            // Daireye tıklama olayı ekle
+            circle.on("click", () => {
+                if (!clicksDisabled) {
+                    const cityName = province.name;
+                    parent.postMessage({ action: "pinClicked", payload: province.name }, "*");
+                    console.log(`Pin clicked: ${cityName}`);
+                } else {
+                    console.log("Clicks are disabled.");
+                }
+            });
+        });
+
+        // Gelen mesajları dinle
+        window.addEventListener("message", (event) => {
+            const { action, payload } = event.data;
+
+            console.log("Message received in map.html:", { action, payload });
+
+            if (action === "highlight") {
+                const circle = markers[payload];
+                if (circle) {
+                    circle.setStyle({
+                        fillColor: 'green',
+                        fillOpacity: 1.0,
+                        color: 'darkgreen',
+                        weight: 2
+                    });
+                    permanentGreenPins.add(payload); // Kalıcı olarak yeşil pin listesine ekle
+                } else {
+                    console.warn(`City not found for highlight: ${payload}`);
+                }
+            } else if (action === "wrong") {
+                const circle = markers[payload];
+                if (circle) {
+                    circle.setStyle({
+                        fillColor: 'red',
+                        fillOpacity: 1.0,
+                        color: 'darkred',
+                        weight: 2
+                    });
+                    wrongPins.add(payload); // Yanlış pin listesine ekle
+                    setTimeout(() => {
+                        if (circle && wrongPins.has(payload)) {
+                            circle.setStyle({
+                                fillColor: 'white', // Varsayılan renk
+                                fillOpacity: 0.5,
+                                color: 'black',
+                                weight: 1
+                            });
+                            wrongPins.delete(payload); // Yanlış pin listesinden çıkar
+                        }
+                    }, 2000); 
+                } else {
+                    console.warn(`City not found for wrong: ${payload}`);
+                }
+            } else if (action === "resetWrongPins") {
+                console.log("Resetting wrong pins...");
+                // Sadece yanlış olanları sıfırla, yeşil pinler kalıcı olsun
+                wrongPins.forEach(name => {
+                    if (markers[name] && !permanentGreenPins.has(name)) {
+                        markers[name].setStyle({
+                            fillColor: 'white',
+                            fillOpacity: 0.5,
+                            color: 'black',
+                            weight: 1
+                        });
+                    }
+                });
+                wrongPins.clear(); // Yanlış pin listesini sıfırla
+            } else if (action === "disableClicks") {
+                clicksDisabled = true; // Tıklamaları devre dışı bırak
+                console.log("Clicks disabled.");
+            } else if (action === "enableClicks") {
+                clicksDisabled = false; // Tıklamaları tekrar aç
+                console.log("Clicks enabled.");
+            }
+        });
+
+        console.log("Map and circles are ready!");
+    </script>
+</body>
+</html>

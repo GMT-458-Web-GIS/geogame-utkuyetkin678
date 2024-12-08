@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İl Tahmin Oyunu</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .ipucu {
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        #sonuc {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        #ipucuListesi {
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div id="puanGosterge">Score: 0</div>
+<h1>City Guess GAME</h1>
+<div id="oyunAlani">
+    <div id="ipucuListesi"></div>
+    <input type="text" id="cevap" placeholder="Guess">
+    <button id="tahminBtn">checkanswer</button>
+    <div id="sonuc"></div>
+</div>
+
+<script>
+    const illerIpuc = {
+    "Adana": [
+        "Plate: 01",
+        "Historical place: Anavarza Ancient City.",
+        "Famous food: Kebap .",
+        "Feature: The city through which the Seyhan River passes."
+    ],
+    "Adıyaman": [
+        "Plate: 02",
+        "Historical place: Nemrut Mountains.",
+        "Famous food: Çiğ köfte.",
+        "Feature: Kommagene Kingdoms ruins is here ."
+    ],
+    "Afyonkarahisar": [
+        "Plate: 03",
+        "Historical place: İscehisar Fairy Chimneys and Göynüş Valley.",
+        "Famous food: Sucuk.",
+        "Feature: Thermal waters."
+    ],
+    "Ağrı": [
+        "Plate: 04",
+        "Historical place: İshak Paşa Sarayı.",
+        "Famous food: Abdigör meatball.",
+        "Feature: Türkiye highest mountain is here."
+    ],
+    "Amasya": [
+        "Plate: 05",
+        "Historical place: Kral Kaya Mezarları.",
+        "Famous food: Çiçek bamyası.",
+        "Feature: Historical Ottoman house in here."
+    ],
+    "Ankara": [
+        "Plate: 06",
+        "Historical place: Anıtkabir.",
+        "Famous food: Beypazarı güveci.",
+        "Feature: Capital in Türkiye."
+    ],
+    "Antalya": [
+        "Plate 07",
+        "Historical place: Termessos Ancint City.",
+        "Famous food: Serpme börek.",
+        "Feature: Most turistical place."
+    ],
+    "Artvin": [
+        "Plate: 08",
+        "Historical place: Çifte Köprü.",
+        "Famous food: Kalaco.",
+        "Feature: Blackseas natural habitats in famous."
+    ],
+    "Aydın": [
+        "Plate 09",
+        "Historical place: Didyma Ancint City.",
+        "Famous food: Çine meatball.",
+        "Feature: Kuşadası in here."
+    ],
+    "Balıkesir": [
+        "Plate: 10",
+        "Historical place: Antandros Ancint City.",
+        "Famous food: Höşmerim.",
+        "Feature: Edremit Bay is here ."
+    ],
+    "Bilecik": [
+        "Plate: 11",
+        "Historical place: Söğüt Ertuğrul Gazi Tomb.",
+        "Famous food: Parmak meatball.",
+        "Feature: place where the Ottoman Empire was founded."
+    ],
+    "Bingöl": [
+        "Plate: 12",
+        "Historical place: Kralkızı Castle.",
+        "Famous food: Mastuva.",
+        "Feature: Yüzen adalar is here."
+    ],
+    "Bitlis": [
+        "Plate: 13",
+        "Historical place: Ahlat Selçuklu Tomb.",
+        "Famous food: Büryan kebab.",
+        "Feature: Famous for its tombstones such as the Orhun Monuments."
+    ],
+    "Bolu": [
+        "Plate: 14",
+        "Hirsotircal place: Seben Kaya houses.",
+        "Famous food: Mengen rice.",
+        "Feature:It is known for its chefs. ."
+    ],
+    "Burdur": [
+        "Plates: 15",
+        "Historical place: Sagalassos Ancint City.",
+        "Famous food: şiş.",
+        "Feature: Salda Lake is here."
+    ],
+    "Bursa": [
+        "Plates: 16",
+        "Historical place: İznik Castle.",
+        "Famous food: İskender kebabı.",
+        "Feature: Ottoman Empire first capital is here."
+    ],
+    "Çanakkale": [
+        "Plates: 17",
+        "Historical Place: Troya Ancint City.",
+        "Famous Food: Ezine cheese.",
+        "Feature: 57th Regiment Martyrdom ."
+    ],
+    "Çankırı": [
+        "Plates: 18",
+        "Historical place: Bayramören Wooden Bridge.",
+        "Famous food: Yaren güveci.",
+        "Feature: Salt caves  ."
+    ],
+    "Çorum": [
+        "Plates: 19",
+        "Historical place: Hattuşaş Ancint City.",
+        "Famous food: Leblebi.",
+        "Feature: It was the capital of the Hittites."
+    ],
+    "Denizli": [
+        "Plates: 20",
+        "Historical place: Hierapolis Ancint City.",
+        "Famous food: Tandır kebab.",
+        "Feature: Pamukkale is here."
+    ],
+    "Diyarbakır": [
+        "Plates: 21",
+        "Historical place: Sülüklü han .",
+        "Famous food: Liver kebabı.",
+        "Feature: Historical Hevsel Garden."
+    ],
+    "Edirne": [
+        "Plates: 22",
+        "Historical place: Selimiye Camii.",
+        "Famous food: liver tava.",
+        "Feature: İn time Ottoman one of capital."
+    ],
+    "Elazığ": [
+        "Plates: 23",
+        "Historical place: Harput Castle.",
+        "Famous food: Orcik (cevizli sucuk).",
+        "Feature: Known for Harput culture ."
+    ],
+    "Erzincan": [
+        "Plates: 24",
+        "Historical place: Mama Hatun Tomb.",
+        "Famous food: Kete.",
+        "Feature: Tulum cheese is in here."
+    ],
+    "Erzurum": [
+        "Plates: 25",
+        "Historical. place: Çifte Minareli Medrese.",
+        "Famous food: Cağ kebabı.",
+        "Feature: It  is one of the provinces with the highest altitude in Turkey (1900 m.)  ."
+    ],
+    "Eskişehir": [
+        "Plates: 26",
+        "Historical place: Odunpazarı Houses.",
+        "Famous food: Çiğbörek.",
+        "Feature: its known 'Univercity city'."
+    ],
+    "Gaziantep": [
+        "Plates: 27",
+        "Historical place: Zeugma Mozaic Museum.",
+        "Famous food: Baklava.",
+        "Feature: its known 'Gastronomy city'."
+    ],
+    "Giresun": [
+        "Plates: 28",
+        "Historical place: Bedrama Castle.",
+        "Famous food: Karalahana soup.",
+        "Feature:  Famous for hazelnut production."
+    ],
+    "Gümüşhane": [
+        "Plates: 29",
+        "Historical place: Santa ruins.",
+        "Famous food: Kuymak.",
+        "Feature: It is known for its Taşköprü grapes."
+    ],
+    "Hakkari": [
+        "Plates: 30",
+        "Historical place: Urartu Tombs .",
+        "Famous food: Sengeser.",
+        "Feature: Zap river is here."
+    ],
+    "Hatay": [
+        "Plates: 31",
+        "Historical place: Saint Pierre Church.",
+        "Famous food: Künefe.",
+        "Feature: It hosts many cultures."
+    ],
+    "Isparta": [
+        "Plates: 32",
+        "Histori: Hızırbey Camii.",
+        "Famous food: Kabune rice.",
+        "Feature:It is famous for its rose production. "
+    ],
+    "Mersin": [
+        "Plates: 33",
+        "Historical place: Ashâb-ı Kehf or Yedi Uyurlar.",
+        "Famous food: Tantuni.",
+        "Feature:An important port on the Mediterranean coast. "
+    ],
+    "istanbul": [
+        "Plates: 34",
+        "Historical place: Ayasofya.",
+        "Famous food: Sultanahmet meatboll.",
+        "Feature: Europe's most populous city."
+    ],
+    "izmir": [
+        "Plates: 35",
+        "Historical place: Efes Ancint City.",
+        "Famous food: Boyoz.",
+        "Feature: known as 'Ege'nin incisi'."
+    ],
+    "Kars": [
+        "Plates: 36",
+        "Historacil: Ani ruin.",
+        "Famous food: Gravyeri cheese.",
+        "Feature:It is famous for goose breeding."
+    ],
+    "Kastamonu": [
+        "Plates: 37",
+        "Historical place: Hz. Pir Şeyh Şaban-i Veli Külliyesi.",
+        "Famous food: Banduma.",
+        "Feature: Ilgaz Mountain is here."
+    ],
+    "Kayseri": [
+        "Plates: 38",
+        "Historical place: Talas Ali Mountain Underground City",
+        "Famous food: Mantı.",
+        "Feature: Erciyes Mountain is here."
+    ],
+    "Kırklareli": [
+        "Plates: 39",
+        "Historical place: Dupnisa Cave.",
+        "Famous food: Bıçak kebabı.",
+        "Feature: It comes to mind when petrochemicals and industry are mentioned."
+    ],
+    "Kırşehir": [
+        "Plates: 40",
+        "Historical place: Ahi Evran Tomb.",
+        "Famous food: Çömlek fasulyesi.",
+        "Feature: Center of Ahi culture ."
+    ],
+    "Kocaeli": [
+        "Plates: 41",
+        "Historical place: İzmit Clock Tower.",
+        "Famous food: Pişmaniye.",
+        "Feature:Industrial and port city ."
+    ],
+    "Konya": [
+        "Plates: 42",
+        "Historical place: Mevlana Museum.",
+        "Famous food: Etli ekmek.",
+        "Feature: Turkey's largest province by area."
+    ],
+    "Kütahya": [
+        "Plates: 43",
+        "Historical place: Aizanoi Ancint City.",
+        "Famous food: Sini mantısı.",
+        "Feature: Famous for its ceramic and tile arts ."
+    ],
+    "Malatya": [
+        "Plates: 44",
+        "Historical place: Arslantepe Höyüğü.",
+        "Famous food: Kayısı dessert.",
+        "Feature:World famous for its apricot production."
+    ],
+    "Manisa": [
+        "Plates: 45",
+        "Historical place: Sardes Ancint City.",
+        "Famous food: Mesir macunu.",
+        "Feature: As known'Şehzadeler City'."
+    ],
+    "Kahramanmaraş": [
+        "Plates: 46",
+        "Historical place: Ceyhan Bridge .",
+        "Famous food: Ice cream.",
+        "Feature: it received the title of 'Kahraman' for her heroism in the War of Independence."
+    ],
+    "Mardin": [
+        "Plates: 47",
+        "Historical place: Deyrulzafaran Monastery.",
+        "Famous food: Kaburga dolması.",
+        "Feature: as known'Doğunun Parisi'."
+    ],
+    "Muğla": [
+        "Plates: 48",
+        "Historical place: Bodrum Ancint Theatre.",
+        "Famous food: Çökertme kebabı.",
+        "Feature: Bodrum is here."
+    ],
+    "Muş": [
+        "Plates: 49",
+        "Historical place: Murat Bridge.",
+        "Famous food: Hafta direği.",
+        "Feature: 1071 Malazgirt Battle happened here."
+    ],
+    "Nevşehir": [
+        "Plates: 50",
+        "Historical place: Uçhisar Castle.",
+        "Famous food: Testi kebabı.",
+        "Feature: Kapadokya centers."
+    ],
+    "Niğde": [
+        "Plates: 51",
+        "Historical place: Gümüşler Monastery.",
+        "Famous food: Gazoz.",
+        "Feature: Known for its historical ruins."
+    ],
+    "Ordu": [
+        "Plates: 52",
+        "Historical place: Paşaoğlu Konağı .",
+        "Famous food: Gilik cheese.",
+        "Feature: Ulugöl is here."
+    ],
+    "Rize": [
+        "Plates: 53",
+        "Historical place: Zil Castle.",
+        "Famous food: Muhlama.",
+        "Feature: Famous prodect 'tea'."
+    ],
+    "Sakarya": [
+        "Plates: 54",
+        "Historical place: Taraklı Ottoman Houses.",
+        "Famous food: Islama Meatball.",
+        "Feature: Sapanca is here."
+    ],
+    "Samsun": [
+        "Plates: 55",
+        "Historical place: Amisos Hill.",
+        "Famous food: Bafra pidesi.",
+        "Feature: Mustafa Kemal Atatürk started the War of Independence here"
+    ],
+    "Siirt": [
+        "Plates: 56",
+        "Historical place: Veysel Karani Tomb.",
+        "Famous food: Perde rice.",
+        "Feature: Delikli taş is here."
+    ],
+    "Sinop": [
+        "Plates 57",
+        "Historical place: Boyabat Castle.",
+        "Famous food: Nokul.",
+        "Feature: A city with no traffic lights."
+    ],
+    "Sivas": [
+        "Plates: 58",
+        "Historical place: Divriği Ulu Cami.",
+        "Famous food: Peskütan soup.",
+        "Feature: Kongre Museum is here."
+    ],
+    "Tekirdağ": [
+        "Plates: 59",
+        "Historical place: Rakoczi Museum.",
+        "Famous food: Hayrabolu dessert.",
+        "Feature: Known for viticulture and winemaking."
+    ],
+    "Tokat": [
+        "Plates: 60",
+        "Historical place: Mahperi Hatun Kervansarayı .",
+        "Famous food: Pehlili rice.",
+        "Feature : Ballıca Caves are here."
+    ],
+    "Trabzon": [
+        "Plates: 61",
+        "Historical place: Sümela Monastery.",
+        "Famous food: Akçaabat Meatball.",
+        "Feature: For peaple look to'Hamsi' they know we here."
+    ],
+    "Tunceli": [
+        "Plates: 62",
+        "Historical place: Ergen Cruch.",
+        "Famous food: Dövme soup.",
+        "Feature: Munzur Mountains as known."
+    ],
+    "Şanlıurfa": [
+        "Plates: 63",
+        "Historical place: Göbeklitepe.",
+        "Famous food: Lahmacun.",
+        "Feature: 'Peygamberler şehri' is mentioned ."
+    ],
+    "Uşak": [
+        "Plates: 64",
+        "Historical place: Blaundus Ancint City.",
+        "Famous food: Tarhana soup.",
+        "Feature: It is known for its rugs and carpet making."
+    ],
+    "Van": [
+        "Plakası 65",
+        "Historical place: Akdamar Church.",
+        "Famous food: famous for its breakfast.",
+        "Feature:Turkey's largest lake is here ."
+    ],
+    "Yozgat": [
+        "Plates: 66",
+        "Historical place: Çapanoğlu Camii.",
+        "Famous food: Arabaşı soup.",
+        "Feature: Known for Bozok Plateau."
+    ],    
+    "Zonguldak": [
+        "Plates: 67",
+        "Historical place: Filyos Ancint City.",
+        "Famous food: Uğmaç soup.",
+        "Feature: Turkey's first hard coal mine is here ."
+    ],
+    "Aksaray": [
+        "Plates: 68",
+        "Historical place: Ihlara Valley .",
+        "Famous food: Soğanlama.",
+        "Feature: Taşpınar is famous for its carpets.."
+    ],
+    "Bayburt": [
+        "Plates: 69",
+        "Historical place: Dede Korkut Tomb.",
+        "Famous food: Lor dolması.",
+        "Feature: It is one of the oldest settlements where Turks settled in Anatolia.."
+    ],
+    "Karaman": [
+        "Plates: 70",
+        "Historical place: İkiz İn Hitit Kabartması.",
+        "Famous food: Calla.",
+        "Feature: It is known as the capital of the Turkish language."
+    ],
+    "Kırıkkale": [
+        "Plates: 71",
+        "Historical place: Ceritkale Kaya Tomb.",
+        "Famous food: Sızgıt.",
+        "Feature:Known for its arms industry ."
+    ],
+    "Batman": [
+        "Plates: 72",
+        "Historical place: Hasankeyf.",
+        "Famous food: Mumbar dolması.",
+        "Feature:It is located on the banks of the Tigris River ."
+    ],
+    "Şırnak": [
+        "Plates: 73",
+        "Historical place: Cizre Ulu Cami.",
+        "Famous food: Kutlık.",
+        "Feature: It is one of the ancient settlements of Mesopotamia.."
+    ],
+    "Bartın": [
+        "Plates: 74",
+        "Historical place: Amasra Castle.",
+        "Famous food: Amasra salad.",
+        "Famous: Güzelcehisar lava columns are here."
+    ],
+    "Ardahan": [
+        "Plates: 75",
+        "Historical place: Şeytan Castle.",
+        "Famous food: Posof Apple.",
+        "Feature: It is the gateway to the Caucasus."
+    ],
+    "Iğdır": [
+        "Plates: 76",
+        "Historical place: Meteor Çukuru.",
+        "Famous food: Bozbaş.",
+        "Feature: It is the easternmost province of Turkey ."
+    ],
+    "Yalova": [
+        "Plates: 77",
+        "Historical place: Atatürk Köşkü.",
+        "Famous food: cennet künkü.",
+        "Feature: It is famous for its thermal spas."
+    ],
+    "Karabük": [
+        "Plates: 78",
+        "Historical place: Safranbolu Houses.",
+        "Famous food: Safranlı zerde.",
+        "Feature: It is on the UNESCO World Heritage List."
+    ],
+    "Kilis": [
+        "Plates: 79",
+        "Historical place: Ravanda Castle.",
+        "Famous food: Cennet Çamuru dessert.",
+        "Feature: It is famous for its molasses."
+    ],
+    "Osmaniye": [
+        "Plates: 80",
+        "Historical place: Karatepe-Aslantaş Museum.",
+        "Famous food: Pekmezli Kömbe.",
+        "Feature: Known for its groundnut production."
+    ],
+    "Düzce": [
+        "Plates: 81",
+        "Historical place: Konuralp Museum.",
+        "Famous food: Melengüçceği dessert.",
+        "Feature:tobacco cologne belongs here ."
+    ]
+
+    // Diğer iller buraya eklenebilir.
+};
+
+let mevcutIl = "";
+let ipucuIndex = 0;
+let puan = 0;
+let sorular = Object.keys(illerIpuc); // Sorular dizisi
+let sorulanIller = []; // Daha önce sorulan iller
+let cevapVerildi = false; // Cevap verilip verilmediğini takip eden değişken
+let ipucuAcildi = false; // İpucu açıldı mı kontrolü
+let maxWrongAttempts = 4; // Maksimum kırmızı hakkı
+let wrongAttempts = 0; // Yanlış cevap sayacı
+
+function yeniSoru() {
+    if (sorular.length === 0) {
+        document.getElementById("sonuc").innerText = "Game over! Your point: " + puan;
+        return;
+    }
+    
+    // Haritaya tüm pinleri sıfırlamasını söyle
+    parent.postMessage({ action: "resetWrongPins" }, "*");
+
+    // Eğer kalıcı yeşil pinler korunacaksa, bu satırı kaldırabilirsiniz.
+    // parent.postMessage({ action: "clearAllPins" }, "*");
+
+    const randomIndex = Math.floor(Math.random() * sorular.length);
+    mevcutIl = sorular[randomIndex];
+    sorulanIller.push(mevcutIl);
+    sorular.splice(randomIndex, 1); // Sorulan il listesinden çıkar
+
+    // Tüm kontrol değişkenlerini sıfırla
+    ipucuIndex = 0;
+    cevapVerildi = false; // Yeni soru için cevabı sıfırla
+    ipucuAcildi = false; // Yeni soru için ipucu sıfırla
+    wrongAttempts = 0; // Yanlış deneme hakkını sıfırla
+
+    // UI temizleme
+    document.getElementById("sonuc").innerText = "";
+    document.getElementById("cevap").value = "";
+    document.getElementById("ipucuListesi").innerHTML = ""; // Önceki ipuçlarını temizle
+
+    // İlk ipucunu göster
+    ipucuGoster();
+}
+
+
+
+function ipucuGoster() {
+    if (ipucuIndex < illerIpuc[mevcutIl].length) {
+        const ipucuElement = document.createElement("div");
+        ipucuElement.className = "ipucu";
+        ipucuElement.innerText = illerIpuc[mevcutIl][ipucuIndex];
+        document.getElementById("ipucuListesi").appendChild(ipucuElement);
+        ipucuIndex++;
+    } else {
+        document.getElementById("sonuc").innerText = `No more hints! Correct answer: ${mevcutIl}.`;
+        parent.postMessage({ action: "highlight", payload: mevcutIl }, "*");
+        setTimeout(() => yeniSoru(), 3000);
+    }
+}
+
+
+function tahminEt() {
+    if (cevapVerildi) {
+        document.getElementById("sonuc").innerText = "You already answered!";
+        return;
+    }
+
+    const cevap = document.getElementById("cevap").value.trim().toLowerCase();
+    const dogruCevap = mevcutIl.toLowerCase();
+
+    if (cevap === dogruCevap) {
+        // Doğru cevap
+        parent.postMessage({ action: "highlight", payload: mevcutIl }, "*");
+        wrongAttempts = 0; // Yanlış sayacı sıfırla
+
+        // Puan hesaplama
+        const kazanilanPuan = ipucuIndex === 1 ? 20 : ipucuIndex === 2 ? 10 : 5;
+        puan += kazanilanPuan;
+
+        // Puan göstergesini güncelle
+        document.getElementById("puanGosterge").innerText = `Score: ${puan}`;
+
+        cevapVerildi = true;
+        ipucuAcildi = false; // Yeni soru için ipucu sıfırla
+
+        // Doğru cevap mesajı
+        document.getElementById("sonuc").innerText = `Congratulations! Correct answer: ${mevcutIl}. You earned ${kazanilanPuan} points. Total: ${puan}`;
+
+        // 3 saniye sonra yeni soruya geç
+        setTimeout(() => yeniSoru(), 3000);
+    } else {
+        // Yanlış cevap
+        wrongAttempts++;
+        parent.postMessage({ action: "wrong", payload: cevap }, "*");
+
+        if (wrongAttempts >= maxWrongAttempts) {
+            // Maksimum yanlış hakka ulaşıldı
+            parent.postMessage({ action: "disableClicks" }, "*");
+            document.getElementById("sonuc").innerText = `Max wrong attempts reached! Correct answer: ${mevcutIl}`;
+            parent.postMessage({ action: "highlight", payload: mevcutIl }, "*");
+            setTimeout(() => yeniSoru(), 3000);
+        } else {
+            document.getElementById("sonuc").innerText = `Wrong! Try again. Attempts left: ${maxWrongAttempts - wrongAttempts}`;
+            ipucuGoster(); // Yeni ipucu göster
+        }
+    }
+}
+
+
+
+document.getElementById("tahminBtn").addEventListener("click", tahminEt);
+
+document.getElementById("cevap").addEventListener("keypress", function(event) {
+    if (event.key === "Enter") {
+        tahminEt();
+    }
+});
+
+// Oyuna ilk soruyla başla
+yeniSoru();
+
+// Haritadan gelen mesajları dinle
+window.addEventListener("message", (event) => {
+    const { action, payload } = event.data;
+
+    if (action === "pinClicked") {
+        const selectedCity = payload.toLowerCase();
+        const dogruCevap = mevcutIl.toLowerCase();
+
+        if (selectedCity === dogruCevap) {
+            // Doğru cevap
+            const kazanilanPuan = ipucuIndex === 1 ? 20 : ipucuIndex === 2 ? 10 : 5;
+            puan += kazanilanPuan;
+
+            // Puan göstergesini güncelle
+            document.getElementById("puanGosterge").innerText = `Score: ${puan}`;
+
+            // Doğru cevap mesajı
+            parent.postMessage({ action: "highlight", payload: mevcutIl }, "*");
+            document.getElementById("sonuc").innerText = `Correct! The city was ${mevcutIl}. You earned ${kazanilanPuan} points. Total: ${puan}`;
+
+            // 3 saniye sonra yeni soruya geç
+            setTimeout(() => yeniSoru(), 3000);
+        } else {
+            // Yanlış cevap
+            wrongAttempts++;
+            parent.postMessage({ action: "wrong", payload: payload }, "*");
+
+            if (wrongAttempts >= maxWrongAttempts) {
+                document.getElementById("sonuc").innerText = `Max wrong attempts reached! Correct answer: ${mevcutIl}`;
+                parent.postMessage({ action: "highlight", payload: mevcutIl }, "*");
+                setTimeout(() => yeniSoru(), 3000);
+            } else {
+                ipucuAcildi = false; // Yanlış tıklama sonrası tekrar açılabilir
+                ipucuGoster();
+                document.getElementById("sonuc").innerText = `Wrong! You have ${maxWrongAttempts - wrongAttempts} attempts left.`;
+            }
+        }
+    }
+});
+
+
+
+</script>
+
+</body>
+</html>

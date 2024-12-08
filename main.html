@@ -1,604 +1,92 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>İl Tahmin Oyunu</title>
+    <title>Interactive Quiz and Map</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
-            padding: 20px;
+            margin: 0;
+            padding: 0;
         }
-        h1 {
-            text-align: center;
+        #question-container {
+            height: 40vh;
+            overflow: auto;
+            border-bottom: 2px solid #ccc;
         }
-        .ipucu {
-            margin: 15px 0;
-            font-weight: bold;
+        #map-container {
+            height: 60vh;
         }
-        #sonuc {
-            margin-top: 20px;
-            font-size: 1.2em;
-            font-weight: bold;
-        }
-        #ipucuListesi {
-            margin: 15px 0;
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
         }
     </style>
 </head>
 <body>
+    <!-- Question Section -->
+    <div id="question-container">
+        <iframe src="soru.html" id="question-frame"></iframe>
+    </div>
+    <!-- Map Section -->
+    <div id="map-container">
+        <iframe src="map.html" id="map-frame"></iframe>
+    </div>
 
-<h1>City Guess GAME</h1>
-<div id="oyunAlani">
-    <div id="ipucuListesi"></div>
-    <input type="text" id="cevap" placeholder="Guess">
-    <button id="tahminBtn">checkanswer</button>
-    <div id="sonuc"></div>
-</div>
+    <script>
+        // İki iframe'i referans al
+        const questionFrame = document.getElementById("question-frame");
+        const mapFrame = document.getElementById("map-frame");
 
-<script>
-    const illerIpuc = {
-    "Adana": [
-        "Plate: 01",
-        "Historical place: Anavarza Ancient City.",
-        "Famous food: Kebap .",
-        "Feature: The city through which the Seyhan River passes."
-    ],
-    "Adıyaman": [
-        "Plate: 02",
-        "Historical place: Nemrut Mountains.",
-        "Famous food: Çiğ köfte.",
-        "Feature: Kommagene Kingdoms ruins is here ."
-    ],
-    "Afyonkarahisar": [
-        "Plate: 03",
-        "Historical place: İscehisar Fairy Chimneys and Göynüş Valley.",
-        "Famous food: Sucuk.",
-        "Feature: Thermal waters."
-    ],
-    "Ağrı": [
-        "Plate: 04",
-        "Historical place: İshak Paşa Sarayı.",
-        "Famous food: Abdigör meatball.",
-        "Feature: Türkiye highest mountain is here."
-    ],
-    "Amasya": [
-        "Plate: 05",
-        "Historical place: Kral Kaya Mezarları.",
-        "Famous food: Çiçek bamyası.",
-        "Feature: Historical Ottoman house in here."
-    ],
-    "Ankara": [
-        "Plate: 06",
-        "Historical place: Anıtkabir.",
-        "Famous food: Beypazarı güveci.",
-        "Feature: Capital in Türkiye."
-    ],
-    "Antalya": [
-        "Plate 07",
-        "Historical place: Termessos Ancint City.",
-        "Famous food: Serpme börek.",
-        "Feature: Most turistical place."
-    ],
-    "Artvin": [
-        "Plate: 08",
-        "Historical place: Çifte Köprü.",
-        "Famous food: Kalaco.",
-        "Feature: Blackseas natural habitats in famous."
-    ],
-    "Aydın": [
-        "Plate 09",
-        "Historical place: Didyma Ancint City.",
-        "Famous food: Çine meatball.",
-        "Feature: Kuşadası in here."
-    ],
-    "Balıkesir": [
-        "Plate: 10",
-        "Historical place: Antandros Ancint City.",
-        "Famous food: Höşmerim.",
-        "Feature: Edremit Bay is here ."
-    ],
-    "Bilecik": [
-        "Plate: 11",
-        "Historical place: Söğüt Ertuğrul Gazi Tomb.",
-        "Famous food: Parmak meatball.",
-        "Feature: place where the Ottoman Empire was founded."
-    ],
-    "Bingöl": [
-        "Plate: 12",
-        "Historical place: Kralkızı Castle.",
-        "Famous food: Mastuva.",
-        "Feature: Yüzen adalar is here."
-    ],
-    "Bitlis": [
-        "Plate: 13",
-        "Historical place: Ahlat Selçuklu Tomb.",
-        "Famous food: Büryan kebab.",
-        "Feature: Famous for its tombstones such as the Orhun Monuments."
-    ],
-    "Bolu": [
-        "Plate: 14",
-        "Hirsotircal place: Seben Kaya houses.",
-        "Famous food: Mengen rice.",
-        "Özellik:It is known for its chefs. ."
-    ],
-    "Burdur": [
-        "Plates: 15",
-        "Historical place: Sagalassos Ancint City.",
-        "Famous food: şiş.",
-        "Özellik: Salda Gölü burada."
-    ],
-    "Bursa": [
-        "Plakası 16",
-        "Tarihi yer: Ulu Cami.",
-        "Ünlü yemek: İskender kebabı.",
-        "Özellik: Osmanlı'nın ilk başkenti."
-    ],
-    "Çanakkale": [
-        "Plakası 17",
-        "Tarihi yer: Troya Antik Kenti.",
-        "Ünlü yemek: Ezine peyniri.",
-        "Özellik: Mustafa Kemal Paşa'nın ünlü sözü ile bilinir."
-    ],
-    "Çankırı": [
-        "Plakası 18",
-        "Tarihi yer: Bayramören Ahşap Köprüsü.",
-        "Ünlü yemek: Yaren güveci.",
-        "Özellik: Tuz mağaraları ile ünlü."
-    ],
-    "Çorum": [
-        "Plakası 19",
-        "Tarihi yer: Hattuşaş Antik Kenti.",
-        "Ünlü yemek: Leblebi.",
-        "Özellik: Hititlere başkentlik yapmış."
-    ],
-    "Denizli": [
-        "Plakası 20",
-        "Tarihi yer: Hierapolis Antik Kenti.",
-        "Ünlü yemek: Tandır kebabı.",
-        "Özellik: Pamukkale Travertenleri burada."
-    ],
-    "Diyarbakır": [
-        "Plakası 21",
-        "Tarihi yer: Diyarbakır Surları.",
-        "Ünlü yemek: Ciğer kebabı.",
-        "Özellik: Tarihi Hevsel Bahçeleri burada."
-    ],
-    "Edirne": [
-        "Plakası 22",
-        "Tarihi yer: Selimiye Camii.",
-        "Ünlü yemek: Ciğer tava.",
-        "Özellik: Osmanlı'ya başkentlik yapmış."
-    ],
-    "Elazığ": [
-        "Plakası 23",
-        "Tarihi yer: Harput Kalesi.",
-        "Ünlü yemek: Orcik (cevizli sucuk).",
-        "Özellik: Harput kültürü ile bilinir."
-    ],
-    "Erzincan": [
-        "Plakası 24",
-        "Tarihi yer: Mama Hatun Türbesi.",
-        "Ünlü yemek: Kete.",
-        "Özellik: Tulum peyniri ile ünlüdür."
-    ],
-    "Erzurum": [
-        "Plakası 25",
-        "Tarihi yer: Çifte Minareli Medrese.",
-        "Ünlü yemek: Cağ kebabı.",
-        "Özellik: Palandöken Kayak Merkezi burada."
-    ],
-    "Eskişehir": [
-        "Plakası 26",
-        "Tarihi yer: Odunpazarı Evleri.",
-        "Ünlü yemek: Çiğbörek.",
-        "Özellik: Üniversite şehri olarak bilinir."
-    ],
-    "Gaziantep": [
-        "Plakası 27",
-        "Tarihi yer: Zeugma Mozaik Müzesi.",
-        "Ünlü yemek: Baklava.",
-        "Özellik: Gastronomi şehri."
-    ],
-    "Giresun": [
-        "Plakası 28",
-        "Tarihi yer: Bedrama Kalesi.",
-        "Ünlü yemek: Karalahana çorbası.",
-        "Özellik: Fındık üretimi ile ünlüdür."
-    ],
-    "Gümüşhane": [
-        "Plakası 29",
-        "Tarihi yer: Santa Harabeleri.",
-        "Ünlü yemek: Kuymak.",
-        "Özellik: Taşköprü üzümü ile bilinir."
-    ],
-    "Hakkari": [
-        "Plakası 30",
-        "Tarihi yer: Cilo Dağı.",
-        "Ünlü yemek: Sengeser.",
-        "Özellik: Zap nehri buradadır."
-    ],
-    "Hatay": [
-        "Plakası 31",
-        "Tarihi yer: Saint Pierre Kilisesi.",
-        "Ünlü yemek: Künefe.",
-        "Özellik: Pek çok kültürü barındırır."
-    ],
-    "Isparta": [
-        "Plakası 32",
-        "Tarihi yer: Eğirdir Gölü.",
-        "Ünlü yemek: Kabune pilavı.",
-        "Özellik: Gül üretimi ile ünlü."
-    ],
-    "Mersin": [
-        "Plakası 33",
-        "Tarihi yer: Cennet-Cehennem Mağaraları.",
-        "Ünlü yemek: Tantuni.",
-        "Özellik: Akdeniz kıyısında önemli bir liman."
-    ],
-    "İstanbul": [
-        "Plakası 34",
-        "Tarihi yer: Ayasofya.",
-        "Ünlü yemek: Balık ekmek.",
-        "Özellik: İki kıtayı birleştiren şehir."
-    ],
-    "İzmir": [
-        "Plakası 35",
-        "Tarihi yer: Efes Antik Kenti.",
-        "Ünlü yemek: Boyoz.",
-        "Özellik: Ege'nin incisi olarak bilinir."
-    ],
-    "Kars": [
-        "Plakası 36",
-        "Tarihi yer: Ani Harabeleri.",
-        "Ünlü yemek: Kaşar peyniri.",
-        "Özellik: Soğuk kışları ile ünlü."
-    ],
-    "Kastamonu": [
-        "Plakası 37",
-        "Tarihi yer: Hz. Pir Şeyh Şaban-i Veli Külliyesi.",
-        "Ünlü yemek: Banduma.",
-        "Özellik: Ilgaz Dağı buradadır."
-    ],
-    "Kayseri": [
-        "Plakası 38",
-        "Tarihi yer: Kayseri Kalesi.",
-        "Ünlü yemek: Mantı.",
-        "Özellik: Erciyes Dağı burada."
-    ],
-    "Kırklareli": [
-        "Plakası 39",
-        "Tarihi yer: Dupnisa Mağarası.",
-        "Ünlü yemek: Bıçak kebabı.",
-        "Özellik: Kırklareli Yaylası ile ünlü."
-    ],
-    "Kırşehir": [
-        "Plakası 40",
-        "Tarihi yer: Ahi Evran Türbesi.",
-        "Ünlü yemek: Çömlek fasulyesi.",
-        "Özellik: Ahilik kültürünün merkezi."
-    ],
-    "Kocaeli": [
-        "Plakası 41",
-        "Tarihi yer: İzmit Saat Kulesi.",
-        "Ünlü yemek: Pişmaniye.",
-        "Özellik: Sanayi ve liman şehri."
-    ],
-    "Konya": [
-        "Plakası 42",
-        "Tarihi yer: Mevlana Müzesi.",
-        "Ünlü yemek: Etli ekmek.",
-        "Özellik: Türkiye'nin yüzölçümü en büyük ili."
-    ],
-    "Kütahya": [
-        "Plakası 43",
-        "Tarihi yer: Aizanoi Antik Kenti.",
-        "Ünlü yemek: Sini mantısı.",
-        "Özellik: Seramik ve çini sanatları ile ünlü."
-    ],
-    "Malatya": [
-        "Plakası 44",
-        "Tarihi yer: Arslantepe Höyüğü.",
-        "Ünlü yemek: Kayısı tatlısı.",
-        "Özellik: Kayısı üretimi ile dünyaca ünlü."
-    ],
-    "Manisa": [
-        "Plakası 45",
-        "Tarihi yer: Sardes Antik Kenti.",
-        "Ünlü yemek: Mesir macunu.",
-        "Özellik: Mesir macunu şenlikleri ile bilinir."
-    ],
-    "Kahramanmaraş": [
-        "Plakası 46",
-        "Tarihi yer: Ceyhan Köprüsü.",
-        "Ünlü yemek: Dondurması.",
-        "Özellik: Kurtuluş Savaşı'ndaki kahramanlıkları nedeniyle “Kahraman” unvanını almıştır."
-    ],
-    "Mardin": [
-        "Plakası 47",
-        "Tarihi yer: Deyrulzafaran Manastırı.",
-        "Ünlü yemek: Kaburga dolması.",
-        "Özellik: Farklı din ve kültürlerin merkezi."
-    ],
-    "Muğla": [
-        "Plakası 48",
-        "Tarihi yer: Bodrum Antik Tiyatrosu.",
-        "Ünlü yemek: Çökertme kebabı.",
-        "Özellik: Turistik beldeleriyle bilinir."
-    ],
-    "Muş": [
-        "Plakası 49",
-        "Tarihi yer: Murat Köprüsü.",
-        "Ünlü yemek: Hafta direği.",
-        "Özellik: Tarihi ve doğal güzellikleriyle ünlü."
-    ],
-    "Nevşehir": [
-        "Plakası 50",
-        "Tarihi yer: Kapadokya Peri Bacaları.",
-        "Ünlü yemek: Testi kebabı.",
-        "Özellik: Kapadokya'nın merkezi."
-    ],
-    "Niğde": [
-        "Plakası 51",
-        "Tarihi yer: Gümüşler Manastırı.",
-        "Ünlü yemek: Gazoz.",
-        "Özellik: Tarihi ören yerleriyle tanınır."
-    ],
-    "Ordu": [
-        "Plakası 52",
-        "Tarihi yer: Boztepe.",
-        "Ünlü yemek: Gilik peyniri.",
-        "Özellik: Fındık üretimiyle öne çıkar."
-    ],
-    "Rize": [
-        "Plakası 53",
-        "Tarihi yer: Zilkalesi.",
-        "Ünlü yemek: Muhlama.",
-        "Özellik: Çay üretimiyle ünlüdür."
-    ],
-    "Sakarya": [
-        "Plakası 54",
-        "Tarihi yer: Taraklı Osmanlı Evleri.",
-        "Ünlü yemek: Islama köfte.",
-        "Özellik: Sapanca buraya bağlıdır."
-    ],
-    "Samsun": [
-        "Plakası 55",
-        "Tarihi yer: Amisos Tepesi.",
-        "Ünlü yemek: Bafra pidesi.",
-        "Özellik: Mustafa Kemal Atatürk, Kurtuluş Savaşı’nı burada başlatmıştır."
-    ],
-    "Siirt": [
-        "Plakası 56",
-        "Tarihi yer: Veysel Karani Türbesi.",
-        "Ünlü yemek: Perde pilavı.",
-        "Özellik: Delikli taş buradadır."
-    ],
-    "Sinop": [
-        "Plakası 57",
-        "Tarihi yer: Boyabat Kalesi.",
-        "Ünlü yemek: Nokul.",
-        "Özellik: Türkiye'nin en kuzeydeki şehri."
-    ],
-    "Sivas": [
-        "Plakası 58",
-        "Tarihi yer: Divriği Ulu Cami.",
-        "Ünlü yemek: Peskütan çorbası.",
-        "Özellik: Kongre Müzesi'ne ev sahipliği yapar."
-    ],
-    "Tekirdağ": [
-        "Plakası 59",
-        "Tarihi yer: Rakoczi Müzesi.",
-        "Ünlü yemek: Hayrabolu tatlısı.",
-        "Özellik: Bağcılık ve şarapçılıkla bilinir."
-    ],
-    "Tokat": [
-        "Plakası 60",
-        "Tarihi yer: Ballıca Mağarası.",
-        "Ünlü yemek: Pehlili pilav.",
-        "Özellik: Tarihi hanları ile ünlüdür."
-    ],
-    "Trabzon": [
-        "Plakası 61",
-        "Tarihi yer: Sümela Manastırı.",
-        "Ünlü yemek: Akçaabat köftesi.",
-        "Özellik: Karadeniz'in önemli liman kentlerinden biri."
-    ],
-    "Tunceli": [
-        "Plakası 62",
-        "Tarihi yer: Munzur Vadisi Milli Parkı.",
-        "Ünlü yemek: Dövme çorbası.",
-        "Özellik: Munzur Dağları ile bilinir."
-    ],
-    "Şanlıurfa": [
-        "Plakası 63",
-        "Tarihi yer: Göbeklitepe.",
-        "Ünlü yemek: Lahmacun.",
-        "Özellik: Peygamberler şehri olarak anılır."
-    ],
-    "Uşak": [
-        "Plakası 64",
-        "Tarihi yer: Blaundus Antik Kenti.",
-        "Ünlü yemek: Tarhana çorbası.",
-        "Özellik: Kilim ve halıcılığı ile tanınır."
-    ],
-    "Van": [
-        "Plakası 65",
-        "Tarihi yer: Akdamar Kilisesi.",
-        "Ünlü yemek: kahvaltısı ile meşhurdur.",
-        "Özellik: Türkiye'nin en büyük gölü buradadır."
-    ],
-    "Yozgat": [
-        "Plakası 66",
-        "Tarihi yer: Çapanoğlu Camii.",
-        "Ünlü yemek: Arabaşı çorbası.",
-        "Özellik: Bozok Yaylası ile bilinir."
-    ],    "Zonguldak": [
-        "Plakası 67",
-        "Tarihi yer: Filyos Antik Kenti.",
-        "Ünlü yemek: Uğmaç çorbası.",
-        "Özellik: Türkiye'nin ilk taşkömürü madeni burada."
-    ],
-    "Aksaray": [
-        "Plakası 68",
-        "Tarihi yer: Ihlara Vadisi.",
-        "Ünlü yemek: Soğanlama.",
-        "Özellik: Taşpınar halıları ile ünlüdür."
-    ],
-    "Bayburt": [
-        "Plakası 69",
-        "Tarihi yer: Dede Korkut Türbesi.",
-        "Ünlü yemek: Lor dolması.",
-        "Özellik: Anadolu'nun en küçük illerinden biridir."
-    ],
-    "Karaman": [
-        "Plakası 70",
-        "Tarihi yer: İkiz İn Hitit Kabartması.",
-        "Ünlü yemek: Calla.",
-        "Özellik: Türk dilinin başkenti olarak anılır."
-    ],
-    "Kırıkkale": [
-        "Plakası 71",
-        "Tarihi yer: Ceritkale Kaya Mezarları.",
-        "Ünlü yemek: Sızgıt.",
-        "Özellik: Silah sanayi ile bilinir."
-    ],
-    "Batman": [
-        "Plakası 72",
-        "Tarihi yer: Hasankeyf.",
-        "Ünlü yemek: Mumbar dolması.",
-        "Özellik: Dicle Nehri kıyısında bulunur."
-    ],
-    "Şırnak": [
-        "Plakası 73",
-        "Tarihi yer: Cizre Ulu Cami.",
-        "Ünlü yemek: Kutlık.",
-        "Özellik: Mezopotamya'nın kadim yerleşim alanlarından biridir."
-    ],
-    "Bartın": [
-        "Plakası 74",
-        "Tarihi yer: Amasra Kalesi.",
-        "Ünlü yemek: Amasra salatası.",
-        "Özellik: Güzelcehisar lav sütunları buradadır."
-    ],
-    "Ardahan": [
-        "Plakası 75",
-        "Tarihi yer: Şeytan Kalesi.",
-        "Ünlü yemek: Kaz eti.",
-        "Özellik: Kafkasya'ya açılan kapıdır."
-    ],
-    "Iğdır": [
-        "Plakası 76",
-        "Tarihi yer: Meteor Çukuru.",
-        "Ünlü yemek: Bozbaş.",
-        "Özellik: Türkiye'nin en doğusundaki ilidir."
-    ],
-    "Yalova": [
-        "Plakası 77",
-        "Tarihi yer: Atatürk Köşkü.",
-        "Ünlü yemek: Yalova sütlüsü.",
-        "Özellik: Termal kaplıcalarıyla ünlüdür."
-    ],
-    "Karabük": [
-        "Plakası 78",
-        "Tarihi yer: Safranbolu Evleri.",
-        "Ünlü yemek: Safranbolu lokumu.",
-        "Özellik: UNESCO Dünya Mirası Listesi'nde yer alır."
-    ],
-    "Kilis": [
-        "Plakası 79",
-        "Tarihi yer: Ravanda Kalesi.",
-        "Ünlü yemek: Cennet Çamuru tatlısı.",
-        "Özellik: Pekmezi ile meşhurdur."
-    ],
-    "Osmaniye": [
-        "Plakası 80",
-        "Tarihi yer: Karatepe-Aslantaş Açık Hava Müzesi.",
-        "Ünlü yemek: Pekmezli Kömbe.",
-        "Özellik: Yer fıstığı üretimi ile bilinir."
-    ],
-    "Düzce": [
-        "Plakası 81",
-        "Tarihi yer: Konuralp Müzesi.",
-        "Ünlü yemek: Melengüçceği tatlısı.",
-        "Özellik: 1999'da Türkiye'nin 81. ili olarak kuruldu."
-    ]
+        // Map'ten Main'e Gelen Pin Tıklama Mesajlarını İşle
+        window.addEventListener("message", (event) => {
+            const { action, payload } = event.data;
 
-    // Diğer iller buraya eklenebilir.
-};
+            console.log("Message received in birlikte.html:", { action, payload });
 
-    let mevcutIl = "";
-    let ipucuIndex = 0;
-    let puan = 0;
-    let sorular = Object.keys(illerIpuc); // Sorular dizisi
-    let sorulanIller = []; // Daha önce sorulan iller
-    let cevapVerildi = false; // Cevap verilip verilmediğini takip eden değişken
+            if (action === "pinClicked") {
+                // Tıklanan ilin adını main.html'e gönder
+                questionFrame.contentWindow.postMessage({ action: "pinClicked", payload }, "*");
+                console.log(`Relayed to soru.html: pinClicked -> ${payload}`);
+            }
+        });
 
-    function yeniSoru() {
-        if (sorular.length === 0) {
-            document.getElementById("sonuc").innerText = "Game over!your point: " + puan;
-            return;
-        }
-        const randomIndex = Math.floor(Math.random() * sorular.length);
-        mevcutIl = sorular[randomIndex];
-        sorulanIller.push(mevcutIl);
-        sorular.splice(randomIndex, 1); // Sorulan il listesinden çıkar
-        ipucuIndex = 0;
-        cevapVerildi = false; // Yeni soru için cevabı sıfırla
-        document.getElementById("sonuc").innerText = "";
-        document.getElementById("cevap").value = "";
-        document.getElementById("ipucuListesi").innerHTML = ""; // Önceki ipuçlarını temizle
-        ipucuGoster(); // İlk ipucunu göster
+        // Main'den Map'e Gelen Cevap Mesajlarını İşle
+        window.addEventListener("message", (event) => {
+            const { action, payload } = event.data;
+
+            console.log("Message received from soru.html:", { action, payload });
+
+            if (action === "highlightProvince") {
+                // Doğru cevabı map.html'e gönder
+                mapFrame.contentWindow.postMessage({ action: "highlight", payload }, "*");
+                console.log(`Relayed to map.html: highlight -> ${payload}`);
+            } else if (action === "wrongProvince") {
+                // Yanlış cevabı map.html'e gönder
+                mapFrame.contentWindow.postMessage({ action: "wrong", payload }, "*");
+                console.log(`Relayed to map.html: wrong -> ${payload}`);
+            }
+        });
+        window.addEventListener("message", (event) => {
+    const { action, payload } = event.data;
+
+    console.log("Message received in birlikte.html:", { action, payload }); // Test noktası
+
+    if (action === "highlight") {
+        mapFrame.contentWindow.postMessage({ action: "highlight", payload }, "*");
+        console.log(`Message relayed to map.html: highlight -> ${payload}`); // Test noktası
+    } else if (action === "wrong") {
+        mapFrame.contentWindow.postMessage({ action: "wrong", payload }, "*");
+        console.log(`Message relayed to map.html: wrong -> ${payload}`); // Test noktası
     }
+});
 
-    function ipucuGoster() {
-        if (ipucuIndex < illerIpuc[mevcutIl].length) {
-            const ipucuElement = document.createElement("div");
-            ipucuElement.className = "ipucu";
-            ipucuElement.innerText = illerIpuc[mevcutIl][ipucuIndex];
-            document.getElementById("ipucuListesi").appendChild(ipucuElement);
-            ipucuIndex++;
-        } else {
-            document.getElementById("sonuc").innerText = `Wrong Answer! Right answer: ${mevcutIl}.`;
-            setTimeout(() => {
-                yeniSoru();
-            }, 5000); // 5 saniye beklemeden sonra yeni soru
-        }
-    }
-
-    function tahminEt() {
-        if (cevapVerildi) {
-            document.getElementById("sonuc").innerText = "You get your point!";
-            return;
-        }
-        
-        const cevap = document.getElementById("cevap").value.trim();
-        if (cevap.toLowerCase() === mevcutIl.toLowerCase()) {
-            const puanGecmis = ipucuIndex === 1 ? 20 : ipucuIndex === 2 ? 10 : 5; // İpuçlarına göre puan
-            puan += puanGecmis; // Mevcut puana ekle
-            cevapVerildi = true; // Cevap verildi olarak işaretle
-            document.getElementById("sonuc").innerText = `Tebrikler! Right answer: ${mevcutIl}. point: ${puan}`;
-            setTimeout(() => {
-                yeniSoru();
-            }, 1000); // 1 saniye beklemeden sonra yeni soru
-        } else {
-            ipucuGoster();
-        }
-    }
-
-    document.getElementById("tahminBtn").addEventListener("click", tahminEt);
-
-    document.getElementById("cevap").addEventListener("keypress", function(event) {
-        if (event.key === "Enter") {
-            tahminEt();
-        }
-    });
-
-    // Oyuna ilk soruyla başla
-    yeniSoru();
-</script>
-
+    </script>
 </body>
 </html>
